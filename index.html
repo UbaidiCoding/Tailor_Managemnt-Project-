@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Wali Tailer · Professional Tailor System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="shop-header">
+    <div class="header-brand">
+      <img src="assets/logo.png" alt="Wali Tailer" class="logo" onerror="this.style.display='none'">
+      <div>
+        <h1>🧵 Wali Tailer</h1>
+        <p class="shop-address">📍 Sukkur Airport, New Jamia | 📞 0312345678999</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="action-bar">
+      <button class="btn btn-primary" id="newOrderBtn">➕ New Order</button>
+      <button class="btn btn-outline" id="exportCsvBtn">📥 Export CSV</button>
+      <button class="btn btn-outline" id="exportJsonBtn">📋 Export JSON</button>
+      <button class="btn btn-outline" id="importCsvBtn">📤 Import CSV</button>
+      <button class="btn btn-outline" id="customersBtn">👥 Customers</button>
+    </section>
+
+    <section class="reports-grid" id="reportsArea">
+      <div class="stat-card">📋 Total orders: <span id="statTotal">0</span></div>
+      <div class="stat-card">💰 Total revenue: <span id="statRevenue">0</span> Rs</div>
+      <div class="stat-card">⏳ Pending balance: <span id="statPendingBal">0</span> Rs</div>
+      <div class="stat-card">✅ Delivered: <span id="statDelivered">0</span></div>
+      <div class="stat-card">📅 Today's advance: <span id="statTodayAdv">0</span> Rs</div>
+    </section>
+
+    <section class="filter-bar">
+      <input type="text" id="searchInput" placeholder="🔍 search name or phone" class="filter-input">
+      <select id="filterStatus" class="filter-select">
+        <option value="">All status</option>
+        <option value="pending">Pending</option>
+        <option value="ready">Ready</option>
+        <option value="delivered">Delivered</option>
+      </select>
+      <select id="filterPayment" class="filter-select">
+        <option value="">Payment: all</option>
+        <option value="Paid">Paid</option>
+        <option value="Partial">Partial</option>
+        <option value="Pending">Pending</option>
+      </select>
+    </section>
+
+    <!-- Customers Panel -->
+    <section class="customers-panel" id="customersPanel" style="display: none;">
+      <div class="panel-header">
+        <h2>👥 Customer Directory</h2>
+        <button class="btn btn-outline small-btn" id="closeCustomersBtn">✕ Close</button>
+      </div>
+      <div id="customersList" class="customers-grid"></div>
+    </section>
+
+    <!-- Order Form -->
+    <section class="order-form-card" id="orderFormSection" style="display: none;">
+      <h3 id="formTitle">➕ New order</h3>
+      <form id="orderForm" novalidate>
+        <input type="hidden" id="editOrderId" value="">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Customer name *</label>
+            <input type="text" id="customerName" required>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp number *</label>
+            <input type="tel" id="whatsapp" required placeholder="03xxxxxxxxx">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Delivery date *</label>
+            <input type="date" id="deliveryDate" required>
+          </div>
+          <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="orderIdDisplay" readonly placeholder="Auto-generated">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Order status</label>
+            <select id="orderStatus">
+              <option value="pending">Pending</option>
+              <option value="ready">Ready</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Measurement Templates Dropdown -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>📐 Measurement Template</label>
+            <select id="measurementTemplate">
+              <option value="">-- Select template --</option>
+              <option value="Standard Suit">Standard Suit (Length, Chest, Sleeve, Waist)</option>
+              <option value="Complete Suit">Complete Suit (Length, Shoulder, Sleeves, Chest, Lap, Neck, Waist)</option>
+              <option value="Shalwar Kameez">Shalwar Kameez (Length, Chest, Sleeve, Waist, Seat, Collar)</option>
+              <option value="Waistcoat">Waistcoat (Length, Chest, Waist, Shoulder)</option>
+              <option value="Sherwani">Sherwani (Length, Chest, Sleeve, Waist, Seat, Collar, Neck)</option>
+              <option value="Trousers">Trousers (Length, Waist, Seat, Bottom)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="btn btn-outline small-btn" id="applyTemplateBtn">Apply Template</button>
+          </div>
+        </div>
+
+        <!-- Professional Measurements Sections -->
+        <fieldset class="measurements-fieldset">
+          <legend>📏 Body Measurements (inch)</legend>
+          <div class="meas-section">
+            <div class="meas-section-title">Upper Body</div>
+            <div id="upperBodyContainer" class="meas-grid"></div>
+          </div>
+          <div class="meas-section">
+            <div class="meas-section-title">Lower Body</div>
+            <div id="lowerBodyContainer" class="meas-grid"></div>
+          </div>
+          <div class="meas-section">
+            <div class="meas-section-title">Special Options</div>
+            <div id="optionsContainer" class="options-grid"></div>
+          </div>
+          <button type="button" class="small-btn" id="addCustomMeasBtn">+ Add Custom Measurement</button>
+          <div id="customMeasurementsContainer"></div>
+        </fieldset>
+
+        <!-- Special Instructions -->
+        <div class="form-group">
+          <label>📝 Special Instructions / Notes</label>
+          <textarea id="specialNotes" rows="2" placeholder="e.g., Extra padding on shoulders, Button placement, Fitting on Sunday..." style="width:100%; padding:0.7rem; border-radius:16px; border:1px solid #cbd5e1;"></textarea>
+        </div>
+
+        <!-- Payment details -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Total amount (Rs) *</label>
+            <input type="number" id="totalAmount" min="0" step="1" required>
+          </div>
+          <div class="form-group">
+            <label>Advance paid (Rs)</label>
+            <input type="number" id="advancePaid" min="0" step="1" value="0">
+          </div>
+          <div class="form-group">
+            <label>Balance (auto)</label>
+            <input type="text" id="balanceDisplay" readonly>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="saveOrderBtn">💾 Save order</button>
+          <button type="button" class="btn btn-outline" id="cancelFormBtn">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Orders List -->
+    <section class="orders-list-section">
+      <h2>📋 Orders</h2>
+      <div id="ordersContainer" class="orders-grid"></div>
+      <div id="noOrdersMsg" class="empty-state">✨ No orders yet. Create a new one.</div>
+    </section>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📜 Order History</h3>
+          <button class="modal-close" id="closeHistoryModal">&times;</button>
+        </div>
+        <div id="historyContent" class="modal-body"></div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      Build by SamiullahSamejo — Ubaidi IT Community — 03420372799
+    </footer>
+  </main>
+
+  <div id="printTemplate" style="display: none;"></div>
+  <script src="app.js"></script>
+</body>
+</html>
